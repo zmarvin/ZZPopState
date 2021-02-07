@@ -15,7 +15,7 @@
 	
 ## 效果图 
 
-（顺便推荐下自己的[仿网易云音乐](https://www.bilibili.com/video/BV1A54y1W7TT)项目，O(∩_∩)O哈哈~）
+（顺便推荐下自己的[仿网易云音乐](https://github.com/zmarvin/WangYiMusic)项目，O(∩_∩)O哈哈~）
 
 ![Examples](_Gifs/pop1.gif)
 
