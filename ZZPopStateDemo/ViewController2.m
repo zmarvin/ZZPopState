@@ -18,7 +18,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor blueColor];
-    self.zz_popSateDisabled = YES;
+//    self.zz_popSateDisabled = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated{
