@@ -6,7 +6,6 @@
 //
 
 #import "ViewController2.h"
-#import "UIViewController+ZZPopState.h"
 
 @interface ViewController2 ()
 
@@ -16,9 +15,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor blueColor];
-//    self.zz_popSateDisabled = YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated{

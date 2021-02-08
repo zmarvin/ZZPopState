@@ -51,7 +51,7 @@ void zz_swizzleDifferentClassInstanceMethod(Class originalCls,Class swizzledCls,
 @implementation UIViewController (ZZPopState)
 
 static UIImageView *snapshotImageView;
-static UIView *navBackground;
+static UIView *barBackground;
 static NSObject <UIViewControllerAnimatedTransitioning> *transition;
 
 + (void)load{
@@ -66,15 +66,16 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
             UIViewController *vc = note.object;
             if (vc.zz_popSateDisabled) { return;}
             UINavigationController *navVC = vc.navigationController;
+            if (navVC.zz_popSateDisabled){ return;}
             UINavigationBar *navBar = navVC.navigationBar;
-            
+            if (navBar.isHidden){ return;}
             id  _UINavigationParallaxTransition = [navVC valueForKeyPath:@"_cachedTransitionController"];
             if (transition == nil || transition != _UINavigationParallaxTransition) {
                 transition = _UINavigationParallaxTransition;
                 zz_swizzleDifferentClassInstanceMethod([transition class], [self class], NSSelectorFromString(@"animateTransition:"), @selector(zz_animateTransition:));
             }
             
-            navBackground = [navBar.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            barBackground = [navBar.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
                 return [evaluatedObject isKindOfClass:NSClassFromString(@"_UIBarBackground")];
             }]].firstObject;
 
@@ -83,18 +84,18 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
             }]].firstObject;
             
             CGFloat barContentViewH = barContentView.bounds.size.height;
-            CGFloat barContentViewY = navBackground.bounds.size.height - barContentViewH;
+            CGFloat barContentViewY = barBackground.bounds.size.height - barContentViewH;
             CGFloat barContentViewW = barContentView.bounds.size.width;
             
-            UIGraphicsBeginImageContextWithOptions(navBackground.bounds.size, YES, 0);
-            [navBackground drawViewHierarchyInRect:navBackground.bounds afterScreenUpdates:YES];
+            UIGraphicsBeginImageContextWithOptions(barBackground.bounds.size, YES, 0);
+            [barBackground drawViewHierarchyInRect:barBackground.bounds afterScreenUpdates:YES];
             [barContentView drawViewHierarchyInRect:CGRectMake(0, barContentViewY, barContentViewW, barContentViewH) afterScreenUpdates:YES];
             UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
             
             snapshotImageView = [[UIImageView alloc] initWithImage:image];
             UIWindow *keyWindow = [[UIApplication sharedApplication] windows].firstObject;
-            snapshotImageView.frame = [navBar convertRect:navBackground.frame toView:keyWindow];
+            snapshotImageView.frame = [navBar convertRect:barBackground.frame toView:keyWindow];
             [keyWindow addSubview:snapshotImageView];
             
         }];
@@ -118,16 +119,12 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
 
     if (transitionContext.isInteractive) {
         [UIView animateWithDuration:0.35 delay:0 options: UIViewAnimationOptionCurveLinear animations:^{
-            snapshotImageView.frame = CGRectMake(UIScreen.mainScreen.bounds.size.width, snapshotImageView.frame.origin.y, snapshotImageView.frame.size.width, navBackground.frame.size.height);
-        } completion:^(BOOL finished) {
-
-        }];
+            snapshotImageView.frame = CGRectMake(UIScreen.mainScreen.bounds.size.width, snapshotImageView.frame.origin.y, snapshotImageView.frame.size.width, barBackground.frame.size.height);
+        } completion:NULL];
     }else{
         [UIView animateWithDuration:0.35 delay:0 options: UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionCurveEaseOut | (NSUInteger)kCAMediaTimingFunctionEaseInEaseOut animations:^{
-            snapshotImageView.frame = CGRectMake(UIScreen.mainScreen.bounds.size.width, snapshotImageView.frame.origin.y, snapshotImageView.frame.size.width, navBackground.frame.size.height);
-        } completion:^(BOOL finished) {
-
-        }];
+            snapshotImageView.frame = CGRectMake(UIScreen.mainScreen.bounds.size.width, snapshotImageView.frame.origin.y, snapshotImageView.frame.size.width, barBackground.frame.size.height);
+        } completion:NULL];
     }
 }
 
