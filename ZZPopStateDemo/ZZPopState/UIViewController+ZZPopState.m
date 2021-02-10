@@ -70,6 +70,7 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
             UINavigationBar *navBar = navVC.navigationBar;
             if (navBar.isHidden){ return;}
             id  _UINavigationParallaxTransition = [navVC valueForKeyPath:@"_cachedTransitionController"];
+            if (!_UINavigationParallaxTransition) {return;}
             if (transition == nil || transition != _UINavigationParallaxTransition) {
                 transition = _UINavigationParallaxTransition;
                 zz_swizzleDifferentClassInstanceMethod([transition class], [self class], NSSelectorFromString(@"animateTransition:"), @selector(zz_animateTransition:));
