@@ -8,9 +8,9 @@
 #import "UIViewController+ZZPopState.h"
 #import <objc/runtime.h>
 
-NSString *const ZZScreenEdgePopGestureStartNotification = @"ZZScreenEdgePopGestureStartNotification";
-NSString *const ZZScreenEdgePopGestureCancelledNotification = @"ZZScreenEdgePopGestureCancelledNotification";
-NSString *const ZZScreenEdgePopGestureEndedNotification = @"ZZScreenEdgePopGestureEndedNotification";
+NSString *const ZZPopStartNotification = @"ZZPopStartNotification";
+NSString *const ZZPopCancelledNotification = @"ZZPopCancelledNotification";
+NSString *const ZZPopEndedNotification = @"ZZPopEndedNotification";
 
 void zz_swizzleIdenticalClassInstanceMethod(Class identicalCls,SEL origSelector, SEL newSelector){
  
@@ -62,7 +62,7 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
         zz_swizzleIdenticalClassInstanceMethod(class, @selector(didMoveToParentViewController:), @selector(zz_didMoveToParentViewController_InjectPopGestureState:));
         zz_swizzleIdenticalClassInstanceMethod(class, @selector(viewDidAppear:), @selector(zz_viewDidAppear_InjectPopGestureState:));
         
-        [NSNotificationCenter.defaultCenter addObserverForName:ZZScreenEdgePopGestureStartNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [NSNotificationCenter.defaultCenter addObserverForName:ZZPopStartNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
             UIViewController *vc = note.object;
             if (vc.zz_popSateDisabled) { return;}
             UINavigationController *navVC = vc.navigationController;
@@ -89,8 +89,8 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
             CGFloat barContentViewW = barContentView.bounds.size.width;
             
             UIGraphicsBeginImageContextWithOptions(barBackground.bounds.size, YES, 0);
-            [barBackground drawViewHierarchyInRect:barBackground.bounds afterScreenUpdates:YES];
-            [barContentView drawViewHierarchyInRect:CGRectMake(0, barContentViewY, barContentViewW, barContentViewH) afterScreenUpdates:YES];
+            [barBackground drawViewHierarchyInRect:barBackground.bounds afterScreenUpdates:NO];
+            [barContentView drawViewHierarchyInRect:CGRectMake(0, barContentViewY, barContentViewW, barContentViewH) afterScreenUpdates:NO];
             UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
             
@@ -101,12 +101,12 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
             
         }];
         
-        [NSNotificationCenter.defaultCenter addObserverForName:ZZScreenEdgePopGestureCancelledNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [NSNotificationCenter.defaultCenter addObserverForName:ZZPopCancelledNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
             [snapshotImageView removeFromSuperview];
             snapshotImageView = nil;
         }];
         
-        [NSNotificationCenter.defaultCenter addObserverForName:ZZScreenEdgePopGestureEndedNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [NSNotificationCenter.defaultCenter addObserverForName:ZZPopEndedNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
             [snapshotImageView removeFromSuperview];
             snapshotImageView = nil;
         }];
@@ -121,11 +121,13 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
     if (transitionContext.isInteractive) {
         [UIView animateWithDuration:0.35 delay:0 options: UIViewAnimationOptionCurveLinear animations:^{
             snapshotImageView.frame = CGRectMake(UIScreen.mainScreen.bounds.size.width, snapshotImageView.frame.origin.y, snapshotImageView.frame.size.width, barBackground.frame.size.height);
-        } completion:NULL];
+        } completion:^(BOOL finished) {
+        }];
     }else{
         [UIView animateWithDuration:0.35 delay:0 options: UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionCurveEaseOut | (NSUInteger)kCAMediaTimingFunctionEaseInEaseOut animations:^{
             snapshotImageView.frame = CGRectMake(UIScreen.mainScreen.bounds.size.width, snapshotImageView.frame.origin.y, snapshotImageView.frame.size.width, barBackground.frame.size.height);
-        } completion:NULL];
+        } completion:^(BOOL finished) {
+        }];
     }
 }
 
@@ -137,7 +139,7 @@ static bool isPopGestureCancelled = NO;
     if (!parent) { // 开启pop
         isPopGestureCancelled = NO;
         isStartPopGesture = YES;
-        [NSNotificationCenter.defaultCenter postNotificationName:ZZScreenEdgePopGestureStartNotification object:self];
+        [NSNotificationCenter.defaultCenter postNotificationName:ZZPopStartNotification object:self];
     }
 }
 
@@ -146,7 +148,7 @@ static bool isPopGestureCancelled = NO;
     if (!parent) { // pop结束
         isPopGestureCancelled = NO;
         isStartPopGesture = NO;
-        [NSNotificationCenter.defaultCenter postNotificationName:ZZScreenEdgePopGestureEndedNotification object:self];
+        [NSNotificationCenter.defaultCenter postNotificationName:ZZPopEndedNotification object:self];
     }
 }
 
@@ -155,7 +157,7 @@ static bool isPopGestureCancelled = NO;
     if (isStartPopGesture) {// pop取消
         isPopGestureCancelled = YES;
         isStartPopGesture = NO;
-        [NSNotificationCenter.defaultCenter postNotificationName:ZZScreenEdgePopGestureCancelledNotification object:self];
+        [NSNotificationCenter.defaultCenter postNotificationName:ZZPopCancelledNotification object:self];
     }
 }
 

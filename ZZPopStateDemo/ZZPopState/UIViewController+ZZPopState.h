@@ -9,9 +9,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-UIKIT_EXTERN NSString *const ZZScreenEdgePopGestureStartNotification;
-UIKIT_EXTERN NSString *const ZZScreenEdgePopGestureCancelledNotification;
-UIKIT_EXTERN NSString *const ZZScreenEdgePopGestureEndedNotification;
+UIKIT_EXTERN NSString *const ZZPopStartNotification;
+UIKIT_EXTERN NSString *const ZZPopCancelledNotification;
+UIKIT_EXTERN NSString *const ZZPopEndedNotification;
 
 @interface UIViewController (ZZPopState)
 
