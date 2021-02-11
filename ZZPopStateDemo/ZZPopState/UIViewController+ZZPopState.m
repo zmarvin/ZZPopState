@@ -70,7 +70,7 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
             UINavigationBar *navBar = navVC.navigationBar;
             if (navBar.isHidden){ return;}
             id  _UINavigationParallaxTransition = [navVC valueForKeyPath:@"_cachedTransitionController"];
-            if (!_UINavigationParallaxTransition) {return;}
+            if (!_UINavigationParallaxTransition) { return;}
             if (transition == nil || transition != _UINavigationParallaxTransition) {
                 transition = _UINavigationParallaxTransition;
                 zz_swizzleDifferentClassInstanceMethod([transition class], [self class], NSSelectorFromString(@"animateTransition:"), @selector(zz_animateTransition:));
@@ -117,14 +117,24 @@ static NSObject <UIViewControllerAnimatedTransitioning> *transition;
 
 - (void)zz_animateTransition:(id <UIViewControllerContextTransitioning>)transitionContext{
     [self zz_animateTransition:transitionContext];
-
+    SEL getDurationSelector = @selector(transitionDuration:);
+    NSTimeInterval duration = 0.35;
+    if ([self respondsToSelector:getDurationSelector]) {
+        NSMethodSignature *signature = [self methodSignatureForSelector:getDurationSelector];
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+        [invocation setTarget:self];
+        [invocation setSelector:getDurationSelector];
+        [invocation invoke];
+        [invocation getReturnValue:&duration];
+    }
+    
     if (transitionContext.isInteractive) {
-        [UIView animateWithDuration:0.35 delay:0 options: UIViewAnimationOptionCurveLinear animations:^{
+        [UIView animateWithDuration:duration delay:0 options: UIViewAnimationOptionCurveLinear animations:^{
             snapshotImageView.frame = CGRectMake(UIScreen.mainScreen.bounds.size.width, snapshotImageView.frame.origin.y, snapshotImageView.frame.size.width, barBackground.frame.size.height);
         } completion:^(BOOL finished) {
         }];
     }else{
-        [UIView animateWithDuration:0.35 delay:0 options: UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionCurveEaseOut | (NSUInteger)kCAMediaTimingFunctionEaseInEaseOut animations:^{
+        [UIView animateWithDuration:duration delay:0 options: UIViewAnimationOptionCurveEaseIn | UIViewAnimationOptionCurveEaseOut | (NSUInteger)kCAMediaTimingFunctionEaseInEaseOut animations:^{
             snapshotImageView.frame = CGRectMake(UIScreen.mainScreen.bounds.size.width, snapshotImageView.frame.origin.y, snapshotImageView.frame.size.width, barBackground.frame.size.height);
         } completion:^(BOOL finished) {
         }];

@@ -17,7 +17,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    /* 尝试用手势pop，对比效果更明显 */
+    
+    UILabel *label = [[UILabel alloc] init];
+    label.text = @"尝试用手势pop，对比效果更明显";
+    label.textAlignment = NSTextAlignmentCenter;
+    label.frame = CGRectMake(0, 100, UIScreen.mainScreen.bounds.size.width, 50);
+    [self.view addSubview:label];
+    
     UIButton *btn = [[UIButton alloc] init];
     [btn setTitle:@"开启效果" forState:UIControlStateNormal];
     btn.frame = CGRectMake(100, 200, 100, 100);
